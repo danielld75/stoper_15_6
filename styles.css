@@ -1,0 +1,18 @@
+body {
+    background: #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.button {
+    font-size: 30px;
+    color: aliceblue;
+    text-decoration: none;
+}
+.button:hover {
+    color: antiquewhite;
+}
+.stopwatch {
+    font-size: 90px;
+    color: azure;
+}
