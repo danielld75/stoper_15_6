@@ -22,23 +22,22 @@ var Stopwatch = function (_React$Component) {
           { className: "controls" },
           React.createElement(
             "button",
-            { onClick: this.start, className: "button", id: "start" },
+            { onClick: this.start, className: "button" },
             "start"
           ),
           React.createElement(
             "button",
-            { onClick: this.stop, className: "button", id: "stop" },
+            { onClick: this.stop, className: "button" },
             "stop"
           ),
           React.createElement(
             "button",
-            { onClick: this.reset, className: "button", id: "reset" },
+            { onClick: this.reset, className: "button" },
             "reset"
           ),
           React.createElement(
             "button",
-            { onClick: this.catchTime, onDoubleClick: this.resetResults, className: "button",
-              id: "catchTime" },
+            { onClick: this.catchTime, onDoubleClick: this.resetResults, className: "button" },
             "rezultaty"
           )
         ),
@@ -47,7 +46,11 @@ var Stopwatch = function (_React$Component) {
           { className: "stopwatch" },
           this.state.display
         ),
-        React.createElement("div", { className: "results" })
+        React.createElement(
+          "div",
+          { className: "results" },
+          this.state.results
+        )
       );
     }
   }]);
@@ -145,14 +148,13 @@ var Stopwatch = function (_React$Component) {
           seconds = _times.seconds,
           miliseconds = _times.miliseconds;
 
-      this.results += "Minutes: " + minutes + " Seconds: " + seconds + " Miliseconds: " + miliseconds + " \n";
-      document.querySelector('.results').innerText = this.results;
+      this.state.results += "Minutes: " + minutes + " Seconds: " + seconds + " Miliseconds: " + miliseconds;
     }
   }, {
     key: "resetResults",
     value: function resetResults() {
-      this.results = [];
-      document.querySelector('.results').innerText = '';
+      this.state.results = [];
+      this.reset();
     }
   }]);
 
@@ -167,28 +169,4 @@ function pad0(value) {
   return result;
 }
 
-var App = function (_React$Component2) {
-  _inherits(App, _React$Component2);
-
-  function App() {
-    _classCallCheck(this, App);
-
-    return _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).apply(this, arguments));
-  }
-
-  _createClass(App, [{
-    key: "render",
-    value: function render() {
-      return React.createElement(
-        "div",
-        null,
-        React.createElement(Stopwatch, null)
-      );
-    }
-  }]);
-
-  return App;
-}(React.Component);
-
-var app = React.createElement(App, null);
-ReactDOM.render(app, document.getElementById('app'));
+ReactDOM.render(React.createElement(Stopwatch, null), document.getElementById('app'));

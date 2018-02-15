@@ -3,15 +3,13 @@ class Stopwatch extends React.Component {
     return (
       <div className="container">
         <div className="controls">
-          <button onClick={this.start} className="button" id="start">start</button>
-          <button onClick={this.stop} className="button" id="stop">stop</button>
-          <button onClick={this.reset} className="button" id="reset">reset</button>
-          <button onClick={this.catchTime} onDoubleClick={this.resetResults} className="button"
-                  id="catchTime">rezultaty
-          </button>
+          <button onClick={this.start} className="button">start</button>
+          <button onClick={this.stop} className="button">stop</button>
+          <button onClick={this.reset} className="button">reset</button>
+          <button onClick={this.catchTime} onDoubleClick={this.resetResults} className="button">rezultaty</button>
         </div>
         <div className="stopwatch">{this.state.display}</div>
-        <div className="results"></div>
+        <div className="results">{this.state.results}</div>
       </div>
     )
   }
@@ -88,13 +86,12 @@ class Stopwatch extends React.Component {
 
   catchTime() {
     const {minutes, seconds, miliseconds} = this.times;
-    this.results += `Minutes: ${minutes} Seconds: ${seconds} Miliseconds: ${miliseconds} \n`;
-    document.querySelector('.results').innerText = this.results;
+    this.state.results += `Minutes: ${minutes} Seconds: ${seconds} Miliseconds: ${miliseconds}`;
   }
 
   resetResults() {
-    this.results = [];
-    document.querySelector('.results').innerText = '';
+    this.state.results = [];
+    this.reset();
   }
 }
 
@@ -106,15 +103,4 @@ function pad0(value) {
   return result;
 }
 
-class App extends React.Component {
-  render() {
-    return (
-      <div>
-        <Stopwatch/>
-      </div>
-    )
-  }
-}
-
-const app = <App/>;
-ReactDOM.render(app, document.getElementById('app'));
+ReactDOM.render(<Stopwatch/>, document.getElementById('app'));
