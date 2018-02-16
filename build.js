@@ -2,6 +2,8 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -22,34 +24,40 @@ var Stopwatch = function (_React$Component) {
           { className: "controls" },
           React.createElement(
             "button",
-            { onClick: this.start, className: "button" },
+            { onClick: this.start.bind(this), className: "button" },
             "start"
           ),
           React.createElement(
             "button",
-            { onClick: this.stop, className: "button" },
+            { onClick: this.stop.bind(this), className: "button" },
             "stop"
           ),
           React.createElement(
             "button",
-            { onClick: this.reset, className: "button" },
+            { onClick: this.reset.bind(this), className: "button" },
             "reset"
           ),
           React.createElement(
             "button",
-            { onClick: this.catchTime, onDoubleClick: this.resetResults, className: "button" },
+            { onClick: this.catchTime.bind(this), onDoubleClick: this.resetResults.bind(this), className: "button" },
             "rezultaty"
           )
         ),
         React.createElement(
           "div",
           { className: "stopwatch" },
-          this.state.display
+          this.format()
         ),
         React.createElement(
-          "div",
+          "ul",
           { className: "results" },
-          this.state.results
+          this.state.results.map(function (item, index) {
+            return React.createElement(
+              "li",
+              { key: index },
+              item
+            );
+          })
         )
       );
     }
@@ -60,34 +68,29 @@ var Stopwatch = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (Stopwatch.__proto__ || Object.getPrototypeOf(Stopwatch)).call(this));
 
-    _this.running = false;
     _this.state = {
+      isRunning: false,
       display: '',
+      times: {
+        minutes: 0,
+        seconds: 0,
+        miliseconds: 0
+      },
       results: []
     };
-    _this.times = {
-      minutes: 0,
-      seconds: 0,
-      miliseconds: 0
-    };
-    _this.reset();
-    _this.print(_this.time);
-    _this.start = _this.start.bind(_this);
-    _this.stop = _this.stop.bind(_this);
-    _this.reset = _this.reset.bind(_this);
-    _this.catchTime = _this.catchTime.bind(_this);
-    _this.resetResults = _this.resetResults.bind(_this);
     return _this;
   }
 
   _createClass(Stopwatch, [{
     key: "reset",
     value: function reset() {
-      this.times = {
-        minutes: 0,
-        seconds: 0,
-        miliseconds: 0
-      };
+      this.setState({
+        times: {
+          minutes: 0,
+          seconds: 0,
+          miliseconds: 0
+        }
+      });
       this.print(this.times);
     }
   }, {
@@ -99,61 +102,83 @@ var Stopwatch = function (_React$Component) {
     }
   }, {
     key: "format",
-    value: function format(times) {
-      return pad0(times.minutes) + ":" + pad0(times.seconds) + ":" + pad0(Math.floor(times.miliseconds));
+    value: function format() {
+      var _state$times = this.state.times,
+          miliseconds = _state$times.miliseconds,
+          seconds = _state$times.seconds,
+          minutes = _state$times.minutes;
+
+      return pad0(minutes) + ":" + pad0(seconds) + ":" + pad0(Math.floor(miliseconds));
     }
   }, {
     key: "start",
     value: function start() {
-      var _this2 = this;
-
-      if (!this.running) {
-        this.running = true;
-        this.watch = setInterval(function () {
-          return _this2.step();
-        }, 10);
+      if (!this.state.isRunning) {
+        this.setState({
+          isRunning: true,
+          watch: setInterval(this.step.bind(this), 10)
+        });
       }
     }
   }, {
     key: "step",
     value: function step() {
-      if (!this.running) return;
+      if (!this.state.isRunning) return;
       this.calculate();
       this.print();
     }
   }, {
     key: "calculate",
     value: function calculate() {
-      this.times.miliseconds += 1;
-      if (this.times.miliseconds >= 100) {
-        this.times.seconds += 1;
-        this.times.miliseconds = 0;
-      }
-      if (this.times.seconds >= 60) {
-        this.times.minutes += 1;
-        this.times.seconds = 0;
-      }
+      this.setState(function (prevState) {
+        var _prevState$times = prevState.times,
+            miliseconds = _prevState$times.miliseconds,
+            seconds = _prevState$times.seconds,
+            minutes = _prevState$times.minutes;
+
+        miliseconds += 1;
+        if (miliseconds >= 100) {
+          seconds += 1;
+          miliseconds = 0;
+        }
+        if (seconds >= 60) {
+          minutes += 1;
+          seconds = 0;
+        }
+        return {
+          times: {
+            minutes: minutes,
+            seconds: seconds,
+            miliseconds: miliseconds
+          }
+        };
+      });
     }
   }, {
     key: "stop",
     value: function stop() {
-      this.running = false;
+      this.setState({
+        isRunning: false
+      });
       clearInterval(this.watch);
     }
   }, {
     key: "catchTime",
     value: function catchTime() {
-      var _times = this.times,
-          minutes = _times.minutes,
-          seconds = _times.seconds,
-          miliseconds = _times.miliseconds;
+      var _this2 = this;
 
-      this.state.results += "Minutes: " + minutes + " Seconds: " + seconds + " Miliseconds: " + miliseconds;
+      this.setState(function (prevState) {
+        return {
+          results: [_this2.format()].concat(_toConsumableArray(prevState.results))
+        };
+      });
     }
   }, {
     key: "resetResults",
     value: function resetResults() {
-      this.state.results = [];
+      this.setState({
+        results: []
+      });
       this.reset();
     }
   }]);

@@ -3,94 +3,108 @@ class Stopwatch extends React.Component {
     return (
       <div className="container">
         <div className="controls">
-          <button onClick={this.start} className="button">start</button>
-          <button onClick={this.stop} className="button">stop</button>
-          <button onClick={this.reset} className="button">reset</button>
-          <button onClick={this.catchTime} onDoubleClick={this.resetResults} className="button">rezultaty</button>
+          <button onClick={this.start.bind(this)} className="button">start</button>
+          <button onClick={this.stop.bind(this)} className="button">stop</button>
+          <button onClick={this.reset.bind(this)} className="button">reset</button>
+          <button onClick={this.catchTime.bind(this)} onDoubleClick={this.resetResults.bind(this)} className="button">rezultaty</button>
         </div>
-        <div className="stopwatch">{this.state.display}</div>
-        <div className="results">{this.state.results}</div>
+        <div className="stopwatch">{this.format()}</div>
+        <ul className="results">{this.state.results.map((item, index) => <li key={index}>{item}</li>
+        )}</ul>
       </div>
     )
   }
 
   constructor() {
     super();
-    this.running = false;
     this.state = {
+      isRunning: false,
       display: '',
+      times: {
+        minutes: 0,
+        seconds: 0,
+        miliseconds: 0
+      },
       results: []
-    };
-    this.times = {
-      minutes: 0,
-      seconds: 0,
-      miliseconds: 0
-    };
-    this.reset();
-    this.print(this.time);
-    this.start = this.start.bind(this);
-    this.stop = this.stop.bind(this);
-    this.reset = this.reset.bind(this);
-    this.catchTime = this.catchTime.bind(this);
-    this.resetResults = this.resetResults.bind(this);
+    }
   }
 
   reset() {
-    this.times = {
-      minutes: 0,
-      seconds: 0,
-      miliseconds: 0
-    };
+    this.setState({
+      times: {
+        minutes: 0,
+        seconds: 0,
+        miliseconds: 0
+      }
+    });
     this.print(this.times);
   }
 
   print() {
     this.setState({
       display: this.format(this.times)
-    })
+    });
   }
 
-  format(times) {
-    return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
+  format() {
+    const { miliseconds, seconds, minutes } = this.state.times;
+    return `${pad0(minutes)}:${pad0(seconds)}:${pad0(Math.floor(miliseconds))}`;
   }
 
   start() {
-    if (!this.running) {
-      this.running = true;
-      this.watch = setInterval(() => this.step(), 10);
+    if (!this.state.isRunning) {
+      this.setState({
+        isRunning: true,
+        watch: setInterval(this.step.bind(this), 10)
+      });
     }
   }
 
   step() {
-    if (!this.running) return;
+    if (!this.state.isRunning) return;
     this.calculate();
     this.print();
   }
 
   calculate() {
-    this.times.miliseconds += 1;
-    if (this.times.miliseconds >= 100) {
-      this.times.seconds += 1;
-      this.times.miliseconds = 0;
-    }
-    if (this.times.seconds >= 60) {
-      this.times.minutes += 1;
-      this.times.seconds = 0;
-    }
+    this.setState(prevState => {
+      let {miliseconds, seconds, minutes} = prevState.times;
+      miliseconds += 1;
+      if (miliseconds >= 100) {
+        seconds += 1;
+        miliseconds = 0;
+      }
+      if (seconds >= 60) {
+        minutes += 1;
+        seconds = 0;
+      }
+      return {
+        times: {
+          minutes,
+          seconds,
+          miliseconds
+        }
+      };
+    });
   }
 
   stop() {
-    this.running = false;
+    this.setState({
+      isRunning: false
+    });
     clearInterval(this.watch);
   }
 
   catchTime() {
-    const {minutes, seconds, miliseconds} = this.times;
-    this.state.results += `Minutes: ${minutes} Seconds: ${seconds} Miliseconds: ${miliseconds}`;
+    this.setState(prevState => ({
+      results: [this.format(), ...prevState.results]
+    }));
   }
 
   resetResults() {
-    this.state.results = [];
+    this.setState({
+      results: [],
+    });
     this.reset();
   }
 }
